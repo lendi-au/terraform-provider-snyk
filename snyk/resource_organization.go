@@ -2,7 +2,6 @@ package snyk
 
 import (
 	"context"
-	"errors"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -52,6 +51,8 @@ func resourceOrganizationRead(ctx context.Context, d *schema.ResourceData, m int
 		return diag.FromErr(err)
 	}
 
+	d.Set("name", org.Name)
+
 	return diags
 }
 
@@ -70,4 +71,3 @@ func resourceOrganizationDelete(ctx context.Context, d *schema.ResourceData, m i
 	d.SetId("")
 	return diags
 }
-
