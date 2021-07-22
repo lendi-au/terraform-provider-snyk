@@ -2,11 +2,11 @@
 
 Provider for managing various aspects of Organizations within Snyk.
 
-**Note: Requires a Business/Enterprise account or higher, as that provides access to the API.**
+**Note: Requires a Business/Enterprise account, as that provides access to the API.**
 
 *This currently has very limited functionality, limited to creating Organizations within a group.*
 
-**Currently Planned Functionality**
+## Currently Planned Functionality
 
 - [ ] Integrations
 - [ ] Project imports from cloud integrations
@@ -42,6 +42,20 @@ Then commit the changes to `go.mod` and `go.sum`.
 ## Using the provider
 
 ```tf
+terraform {
+  required_providers {
+    snyk = {
+      source = "lendi-au/snyk"
+      version = "<version>"
+    }
+  }
+}
+
+provider "snyk" {
+    group_id = "GROUP_ID" # can also be provided in env as SNYK_API_GROUP
+    api_key = "API_KEY" # can also be provided in env as SNYK_API_KEY, requires Group admin scope
+}
+
 resource "snyk_organization" "test" {
     name = 'Test Organization'
 }

@@ -25,6 +25,7 @@ func generateHeaders(so SnykOptions, req *http.Request) {
 	authToken := fmt.Sprintf("token %s", so.ApiKey)
 	req.Header.Set("Authorization", authToken)
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", so.UserAgent)
 }
 
 func constructUrl(path string) string {
