@@ -25,7 +25,8 @@ website/node_modules
 *.test
 *.iml
 
-website/vendor
+vendor/
+terraform-provider-snyk
 
 # Test exclusions
 !command/test-fixtures/**/*.tfstate

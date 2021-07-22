@@ -1,4 +1,4 @@
-module github.com/hashicorp/terraform-provider-scaffolding
+module github.com/lendi-au/terraform-provider-snyk
 
 go 1.15
 

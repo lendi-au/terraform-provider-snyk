@@ -7,8 +7,9 @@ import (
 )
 
 type SnykOptions struct {
-	GroupId string
-	ApiKey  string
+	GroupId   string
+	ApiKey    string
+	UserAgent string
 }
 
 func clientDo(so SnykOptions, method string, path string, body []byte) (*http.Response, error) {
