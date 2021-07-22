@@ -57,7 +57,7 @@ provider "snyk" {
 }
 
 resource "snyk_organization" "test" {
-    name = 'Test Organization'
+    name = "Test Organization"
 }
 ```
 
