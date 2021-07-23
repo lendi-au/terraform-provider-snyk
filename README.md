@@ -8,8 +8,6 @@ Provider for managing various aspects of Organizations within Snyk.
 
 ## TODO
 
-- [ ] Release workflow
-- [x] Documentation for initial resources
 - [ ] Acceptance tests
 
 ## Currently Planned Functionality
