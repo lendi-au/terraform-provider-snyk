@@ -6,6 +6,12 @@ Provider for managing various aspects of Organizations within Snyk.
 
 *This currently has very limited functionality, limited to creating Organizations within a group.*
 
+## TODO
+
+- [ ] Release workflow
+- [x] Documentation for initial resources
+- [ ] Acceptance tests
+
 ## Currently Planned Functionality
 
 - [ ] Integrations

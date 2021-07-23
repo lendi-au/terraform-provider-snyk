@@ -27,6 +27,7 @@ website/node_modules
 
 vendor/
 terraform-provider-snyk
+.vscode/
 
 # Test exclusions
 !command/test-fixtures/**/*.tfstate
