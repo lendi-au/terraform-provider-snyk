@@ -41,69 +41,68 @@ func resourceIntegration() *schema.Resource {
 
 func resourceIntegrationCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
+	var err error
 
 	so := m.(api.SnykOptions)
 
+	orgId := d.Get("organization").(string)
+	intType := d.Get("type").(string)
 	credentials, err := getCredentialState(d)
 
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	integrationData := api.Integration{
-		OrganizationId: d.Get("organization").(string),
-		Type:           d.Get("type").(string),
-		Credentials:    credentials,
-	}
-
-	i, err := api.GetIntegration(so, integrationData)
-
-	var newIntegration api.Integration
-	if err != nil { // if integration not found, create it
-		newIntegration, err = api.CreateIntegration(so, i)
-	} else { // otherwise, reactivate credentials
-		newIntegration, err = api.UpdateIntegration(so, i)
-	}
+	exists, err := api.IntegrationExists(so, orgId, intType)
 
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	d.SetId(newIntegration.Id)
-	d.Set("organization", newIntegration.OrganizationId)
-	d.Set("type", newIntegration.Type)
+	var id string
+	if !exists { // if integration not found, create it
+		id, err = api.CreateIntegration(so, orgId, intType, credentials)
+
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	} else { // otherwise, reactivate credentials
+		id, err = api.GetIntegrationByType(so, orgId, intType)
+
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		id, err = api.UpdateIntegration(so, orgId, id, intType, credentials)
+
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	d.SetId(id)
+	d.Set("organization", orgId)
+	d.Set("type", intType)
 	setCredentialState(credentials, d)
 
 	return diags
 }
 
 func resourceIntegrationRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	// This currently doesn't change anything on sync - we can't pull the credentials, so just resetting the provided
+	// Id's to the state.
 	var diags diag.Diagnostics
 	so := m.(api.SnykOptions)
 
-	credentials, err := getCredentialState(d)
+	orgId := d.Get("organization").(string)
+	id := d.Id()
+
+	_, err := api.GetIntegrationDetails(so, orgId, id)
 
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
-	// For now, we're just going to traverse the list of integrations in the org and verify it exists
-	integrationData := api.Integration{
-		Id:             d.Id(),
-		OrganizationId: d.Get("organization").(string),
-		Type:           d.Get("type").(string),
-		Credentials:    credentials,
-	}
-
-	i, err := api.GetIntegration(so, integrationData)
-
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	d.SetId(i.Id)
-	d.Set("organization", i.OrganizationId)
-	d.Set("type", i.Type)
-	setCredentialState(credentials, d)
+	d.SetId(id)
+	d.Set("organization", orgId)
 
 	return diags
 }
@@ -112,28 +111,21 @@ func resourceIntegrationUpdate(ctx context.Context, d *schema.ResourceData, m in
 	var diags diag.Diagnostics
 	so := m.(api.SnykOptions)
 
+	id := d.Id()
+	orgId := d.Get("organization").(string)
+	intType := d.Get("type").(string)
 	credentials, err := getCredentialState(d)
 
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	integrationData := api.Integration{
-		Id:             d.Id(),
-		OrganizationId: d.Get("organization").(string),
-		Type:           d.Get("type").(string),
-		Credentials:    credentials,
-	}
-
-	i, err := api.UpdateIntegration(so, integrationData)
+	_, err = api.UpdateIntegration(so, orgId, id, intType, credentials)
 
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	d.SetId(i.Id)
-	d.Set("organization", i.OrganizationId)
-	d.Set("type", i.Type)
 	setCredentialState(credentials, d)
 
 	return diags
@@ -144,13 +136,10 @@ func resourceIntegrationDelete(ctx context.Context, d *schema.ResourceData, m in
 
 	so := m.(api.SnykOptions)
 
-	integrationData := api.Integration{
-		Id:             d.Id(),
-		OrganizationId: d.Get("organization").(string),
-		Type:           d.Get("type").(string),
-	}
+	id := d.Id()
+	orgId := d.Get("organization").(string)
 
-	err := api.DeleteIntegration(so, integrationData)
+	err := api.DeleteIntegration(so, orgId, id)
 
 	if err != nil {
 		return diag.FromErr(err)

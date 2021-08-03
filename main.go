@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
 	"github.com/lendi-au/terraform-provider-snyk/snyk"
@@ -34,14 +36,13 @@ func main() {
 
 	opts := &plugin.ServeOpts{ProviderFunc: snyk.New(version)}
 
-	// if debugMode {
-	// 	// TODO: update this string with the full name of your provider as used in your configs
-	// 	err := plugin.Debug(context.Background(), "registry.terraform.io/lendi-au/snyk", opts)
-	// 	if err != nil {
-	// 		log.Fatal(err.Error())
-	// 	}
-	// 	return
-	// }
+	if debugMode {
+		err := plugin.Debug(context.Background(), "registry.terraform.io/lendi-au/snyk", opts)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		return
+	}
 
 	plugin.Serve(opts)
 }
