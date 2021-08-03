@@ -33,6 +33,7 @@ func New(version string) func() *schema.Provider {
 			},
 			ResourcesMap: map[string]*schema.Resource{
 				"snyk_organization": resourceOrganization(),
+				"snyk_integration":  resourceIntegration(),
 			},
 			DataSourcesMap: map[string]*schema.Resource{
 				"snyk_organization": dataSourceOrganization(),
