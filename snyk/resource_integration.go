@@ -59,50 +59,44 @@ func resourceIntegrationCreate(ctx context.Context, d *schema.ResourceData, m in
 		return diag.FromErr(err)
 	}
 
-	var id string
+	var integration *api.Integration
 	if !exists { // if integration not found, create it
-		id, err = api.CreateIntegration(so, orgId, intType, credentials)
+		integration, err = api.CreateIntegration(so, orgId, intType, credentials)
 
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	} else { // otherwise, reactivate credentials
-		id, err = api.GetIntegrationByType(so, orgId, intType)
-
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		id, err = api.UpdateIntegration(so, orgId, id, intType, credentials)
+		integration, err = api.UpdateIntegration(so, orgId, intType, credentials)
 
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	d.SetId(id)
-	d.Set("organization", orgId)
-	d.Set("type", intType)
-	setCredentialState(credentials, d)
+	d.SetId(integration.Id)
+	d.Set("organization", integration.OrgId)
+	d.Set("type", integration.Type)
+	setCredentialState(integration.Credentials, d)
 
 	return diags
 }
 
 func resourceIntegrationRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	// This currently doesn't change anything on sync - we can't pull the credentials, so just resetting the provided
-	// Id's to the state.
 	var diags diag.Diagnostics
 	so := m.(api.SnykOptions)
 
 	orgId := d.Get("organization").(string)
-	id := d.Id()
+	intType := d.Get("type").(string)
 
-	_, err := api.GetIntegrationDetails(so, orgId, id)
+	integration, err := api.GetIntegration(so, orgId, intType)
 
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	d.SetId(id)
-	d.Set("organization", orgId)
+	d.SetId(integration.Id)
+	d.Set("organization", integration.OrgId)
+	d.Set("type", integration.Type)
 
 	return diags
 }
@@ -111,7 +105,6 @@ func resourceIntegrationUpdate(ctx context.Context, d *schema.ResourceData, m in
 	var diags diag.Diagnostics
 	so := m.(api.SnykOptions)
 
-	id := d.Id()
 	orgId := d.Get("organization").(string)
 	intType := d.Get("type").(string)
 	credentials, err := getCredentialState(d)
@@ -120,13 +113,13 @@ func resourceIntegrationUpdate(ctx context.Context, d *schema.ResourceData, m in
 		return diag.FromErr(err)
 	}
 
-	_, err = api.UpdateIntegration(so, orgId, id, intType, credentials)
+	integration, err := api.UpdateIntegration(so, orgId, intType, credentials)
 
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	setCredentialState(credentials, d)
+	setCredentialState(integration.Credentials, d)
 
 	return diags
 }
@@ -136,10 +129,10 @@ func resourceIntegrationDelete(ctx context.Context, d *schema.ResourceData, m in
 
 	so := m.(api.SnykOptions)
 
-	id := d.Id()
 	orgId := d.Get("organization").(string)
+	intType := d.Get("type").(string)
 
-	err := api.DeleteIntegration(so, orgId, id)
+	err := api.DeleteIntegration(so, orgId, intType)
 
 	if err != nil {
 		return diag.FromErr(err)

@@ -6,6 +6,8 @@ import (
 )
 
 type Integration struct {
+	Id          string                 `json:"id,omitempty"`
+	OrgId       string                 `json:"-"`
 	Type        string                 `json:"type"`
 	Credentials IntegrationCredentials `json:"credentials"`
 }
@@ -20,8 +22,7 @@ type IntegrationCredentials struct {
 	RoleArn      string `json:"roleArn,omitempty"`
 }
 
-func CreateIntegration(so SnykOptions, orgId string, intType string, creds IntegrationCredentials) (string, error) {
-	// Send request to url to create integration of type, fill out ID after creation
+func CreateIntegration(so SnykOptions, orgId string, intType string, creds IntegrationCredentials) (*Integration, error) {
 	path := fmt.Sprintf("/org/%s/integrations", orgId)
 
 	i := Integration{
@@ -34,7 +35,7 @@ func CreateIntegration(so SnykOptions, orgId string, intType string, creds Integ
 	res, err := clientDo(so, "POST", path, body)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	defer res.Body.Close()
@@ -43,26 +44,35 @@ func CreateIntegration(so SnykOptions, orgId string, intType string, creds Integ
 	err = json.NewDecoder(res.Body).Decode(&newInt)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return newInt["id"], nil
+	returnData := &Integration{
+		Id:          newInt["id"],
+		OrgId:       orgId,
+		Type:        intType,
+		Credentials: creds,
+	}
+
+	return returnData, nil
 }
 
-func GetIntegrationDetails(so SnykOptions, orgId string, integrationId string) (string, error) {
-	path := fmt.Sprintf("/org/%s/integrations/%s", orgId, integrationId)
-
-	_, err := clientDo(so, "GET", path, nil)
+func GetIntegration(so SnykOptions, orgId string, intType string) (*Integration, error) {
+	id, err := getIntegrationIdByType(so, orgId, intType)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return "", nil
+	return &Integration{
+		Id:    id,
+		OrgId: orgId,
+		Type:  intType,
+	}, nil
 }
 
-func GetIntegrationByType(so SnykOptions, orgId string, intType string) (string, error) {
-	path := fmt.Sprintf("/org/%s/integrations", orgId)
+func getIntegrationIdByType(so SnykOptions, orgId string, intType string) (string, error) {
+	path := fmt.Sprintf("/org/%s/integrations/%s", orgId, intType)
 
 	res, err := clientDo(so, "GET", path, nil)
 
@@ -72,14 +82,14 @@ func GetIntegrationByType(so SnykOptions, orgId string, intType string) (string,
 
 	defer res.Body.Close()
 
-	var listing map[string]string
-	err = json.NewDecoder(res.Body).Decode(&listing)
+	var data map[string]string
+	err = json.NewDecoder(res.Body).Decode(&data)
 
 	if err != nil {
 		return "", err
 	}
 
-	return listing[intType], nil
+	return data["id"], nil
 }
 
 func IntegrationExists(so SnykOptions, org string, intType string) (bool, error) {
@@ -105,29 +115,50 @@ func IntegrationExists(so SnykOptions, org string, intType string) (bool, error)
 	return exists, nil
 }
 
-func UpdateIntegration(so SnykOptions, orgId string, id string, intType string, creds IntegrationCredentials) (string, error) {
+func UpdateIntegration(so SnykOptions, orgId string, intType string, creds IntegrationCredentials) (*Integration, error) {
+
+	id, err := getIntegrationIdByType(so, orgId, intType)
+
+	if err != nil {
+		return nil, err
+	}
+
 	path := fmt.Sprintf("/org/%s/integrations/%s", orgId, id)
 
-	i := Integration{
+	patchData := &Integration{
 		Type:        intType,
 		Credentials: creds,
 	}
 
-	body, _ := json.Marshal(i)
+	body, _ := json.Marshal(patchData)
 
-	_, err := clientDo(so, "PUT", path, body)
+	_, err = clientDo(so, "PUT", path, body)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return id, nil
+	returnData := &Integration{
+		Id:          id,
+		OrgId:       orgId,
+		Type:        intType,
+		Credentials: creds,
+	}
+
+	return returnData, nil
 }
 
-func DeleteIntegration(so SnykOptions, orgId string, id string) error {
+func DeleteIntegration(so SnykOptions, orgId string, intType string) error {
+
+	id, err := getIntegrationIdByType(so, orgId, intType)
+
+	if err != nil {
+		return err
+	}
+
 	path := fmt.Sprintf("/org/%s/integrations/%s/authentication", orgId, id)
 
-	_, err := clientDo(so, "DELETE", path, nil)
+	_, err = clientDo(so, "DELETE", path, nil)
 
 	return err
 }

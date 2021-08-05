@@ -4,16 +4,14 @@ Provider for managing various aspects of Organizations within Snyk.
 
 **Note: Requires a Business/Enterprise account, as that provides access to the API.**
 
-*This currently has very limited functionality, limited to creating Organizations within a group.*
+Currently provides Terraform resources for:
 
-## TODO
-
-- [ ] Acceptance tests
+- Organizations
+- Integrations (yet to be released, but code on `main`)
 
 ## Currently Planned Functionality
 
-- [ ] Integrations
-- [ ] Project imports from cloud integrations
+- [ ] Projects (importing from integrations)
 
 ## Requirements
 
@@ -71,26 +69,11 @@ If you wish to work on the provider, you'll first need [Go](http://www.golang.or
 
 To compile the provider, run `go install`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
 
-To override any installed provider versions with the local development copy, add the following block to `~/.terraformrc`:
-
-```tf
-provider_installation {
-
-  dev_overrides {
-    "lendi-au/snyk" = "<FOLDER_CONTAINING_BINARY>"
-  }
-
-  direct {}
-
-}
-```
-
-
 To generate or update documentation, run `go generate`.
 
 In order to run the full suite of Acceptance tests, run `make testacc`.
 
-*Note:* Acceptance tests create real resources within the configured Snyk group.
+*Note:* Acceptance tests create real resources within the configured Snyk group - requires an API key and Group ID to be set as environment variables.
 
 ```sh
 $ make testacc
