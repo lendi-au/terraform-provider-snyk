@@ -7,7 +7,7 @@ Provider for managing various aspects of Organizations within Snyk.
 Currently provides Terraform resources for:
 
 - Organizations
-- Integrations (yet to be released, but code on `main`)
+- Integrations (yet to be released, but code on `main` - still need to write up docs)
 
 ## Currently Planned Functionality
 
