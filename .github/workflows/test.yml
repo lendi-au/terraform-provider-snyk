@@ -8,13 +8,6 @@ on:
       - main
     paths-ignore:
       - 'README.md'
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - 'README.md'
-  schedule:
-    - cron: '0 14 * * SUN'
 jobs:
   # ensure the code builds...
   build:
@@ -42,19 +35,8 @@ jobs:
 
   # run acceptance tests in a matrix with Terraform core versions
   test:
-    name: Matrix Test
+    name: Unit Tests
     needs: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        # list whatever Terraform versions here you would like to support
-        terraform:
-          - '0.13.7'
-          - '0.14.11'
-          - '0.15.5'
-          - '1.0.3'
     steps:
 
     - name: Set up Go
@@ -70,14 +52,7 @@ jobs:
       run: |
         go mod download
         
-    - name: TF acceptance tests
-      timeout-minutes: 10
-      env:
-        TF_ACC: "1"
-        TF_ACC_TERRAFORM_VERSION: ${{ matrix.terraform }}
-        SNYK_API_GROUP: ${{ secrets.SNYK_API_GROUP }}
-        SNYK_API_KEY: ${{ secrets.SNYK_API_KEY }}
-        
-
+    - name: TF unit tests
+      timeout-minutes: 10 
       run: |
         go test -v -cover ./snyk
