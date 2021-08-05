@@ -27,6 +27,6 @@ data "snyk_organization" "example" {
 
 ### Read-Only
 
-- **name** (String) The display name of the queried Organization.
+- **name** (String)
 
 

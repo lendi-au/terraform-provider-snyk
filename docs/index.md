@@ -3,12 +3,12 @@
 page_title: "snyk Provider"
 subcategory: ""
 description: |-
-    Provider for configuring Snyk Organizations and projects.
+  
 ---
 
 # snyk Provider
 
-Provider for configuring Snyk Organizations and projects. Requires a Business/Enterprise account for API access.
+
 
 ## Example Usage
 
@@ -25,4 +25,4 @@ provider "snyk" {
 ### Required
 
 - **api_key** (String, Sensitive)
-- **group_id** (String) Group ID for use in Snyk API.
+- **group_id** (String)

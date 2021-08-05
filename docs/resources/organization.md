@@ -3,12 +3,12 @@
 page_title: "snyk_organization Resource - terraform-provider-snyk"
 subcategory: ""
 description: |-
-    Resource for configuring a Snyk Organization.
+  
 ---
 
 # snyk_organization (Resource)
 
-Resource for configuring a Snyk Organization within your configured group.
+
 
 ## Example Usage
 
