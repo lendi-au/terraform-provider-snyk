@@ -3,7 +3,7 @@
 #
 name: Test
 on:
-  pull-request:
+  pull_request:
     branches:
       - main
     paths-ignore:
@@ -14,7 +14,7 @@ on:
     paths-ignore:
       - 'README.md'
   schedule:
-    - cron: '0 21 * * 0'
+    - cron: '0 14 * * SUN'
 jobs:
   # ensure the code builds...
   build:
