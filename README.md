@@ -1,5 +1,7 @@
 # Snyk Terraform Provider
 
+[![Acceptance Tests](https://github.com/lendi-au/terraform-provider-snyk/actions/workflows/acceptance_test.yml/badge.svg)](https://github.com/lendi-au/terraform-provider-snyk/actions/workflows/acceptance_test.yml)
+
 Provider for managing various aspects of Organizations within Snyk.
 
 **Note: Requires a Business/Enterprise account, as that provides access to the API.**
