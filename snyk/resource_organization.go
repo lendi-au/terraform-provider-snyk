@@ -49,7 +49,7 @@ func resourceOrganizationCreate(ctx context.Context, d *schema.ResourceData, m i
 	}
 
 	d.SetId(org.Id)
-	d.Set("created", org.Created)
+	d.Set("created", org.Created.String())
 	d.Set("name", org.Name)
 	d.Set("slug", org.Slug)
 	d.Set("url", org.Url)
@@ -69,7 +69,7 @@ func resourceOrganizationRead(ctx context.Context, d *schema.ResourceData, m int
 		return diag.FromErr(err)
 	}
 
-	d.Set("created", org.Created)
+	d.Set("created", org.Created.String())
 	d.Set("name", org.Name)
 	d.Set("slug", org.Slug)
 	d.Set("url", org.Url)

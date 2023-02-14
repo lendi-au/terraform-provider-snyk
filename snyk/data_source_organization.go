@@ -51,7 +51,7 @@ func dataSourceOrganizationRead(ctx context.Context, d *schema.ResourceData, m i
 	}
 
 	d.Set("id", org.Id)
-	d.Set("created", org.Created)
+	d.Set("created", org.Created.String())
 	d.Set("name", org.Name)
 	d.Set("slug", org.Slug)
 	d.Set("url", org.Url)
